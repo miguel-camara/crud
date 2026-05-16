@@ -1,0 +1,6 @@
+@if (productResource.hasValue()) {
+  <!-- Producto -->
+  <product-detail [product]="productResource.value()!" />
+} @else {
+  <app-loading />
+}

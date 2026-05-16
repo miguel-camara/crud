@@ -1,0 +1,52 @@
+<div class="overflow-x-auto">
+  <table class="table">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripcion</th>
+        <th>Precio</th>
+        <th>Inventario</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- row 1 -->
+      @for (product of products(); track product.id) {
+        <tr>
+          <td>
+            {{ product.name }}
+          </td>
+          <td>
+            {{ product.description }}
+          </td>
+          <td>
+            {{ product.price | currency }}
+          </td>
+          <td>
+            @if (product.stock <= 10) {
+              <span class="badge badge-error">{{ product.stock }}</span>
+            }
+            <!--  -->
+            @else if (product.stock <= 20) {
+              <span class="badge badge-warning">{{ product.stock }}</span>
+            }
+            <!--  -->
+            @else {
+              <span class="badge badge-success">{{ product.stock }}</span>
+            }
+          </td>
+          <th>
+            <a [routerLink]="['/product', product.id]" class="btn btn-ghost text-accent btn-xs">
+              Detalles
+            </a>
+          </th>
+        </tr>
+      } @empty {
+        <div class="col-span-full justify-center">
+          <p>No hay productos</p>
+        </div>
+      }
+    </tbody>
+  </table>
+</div>

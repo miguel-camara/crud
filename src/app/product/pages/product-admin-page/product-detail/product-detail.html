@@ -1,0 +1,69 @@
+<h1 class="text-2xl ml-8 font-bold">{{ product().name }}</h1>
+<div class="divider"></div>
+
+<form [formGroup]="productForm" class="grid grid-cols-1 gap-4 mx-8" (ngSubmit)="onSubmit()">
+  <!-- Datos generales -->
+  <div class="col-span-1">
+    <div class="flex flex-col gap-2">
+      <div class="flex justify-between">
+        <h2 class="text-2xl font-bold h-12">Datos generales</h2>
+        <button class="btn btn-soft btn-secondary" [disabled]="wasSaved()" type="submit">
+          @if (wasSaved()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          Guardar
+        </button>
+      </div>
+      <input
+        type="text"
+        placeholder="Nombre"
+        class="input input-bordered w-full"
+        formControlName="name"
+        [class.border-red-500]="productForm.get('name')?.errors ?? false"
+      />
+      <form-error-label [control]="productForm.get('name')!" />
+
+      <textarea
+        class="textarea textarea-bordered w-full"
+        placeholder="Descripción"
+        rows="6"
+        formControlName="description"
+        [class.border-red-500]="productForm.get('description')?.errors ?? false"
+      ></textarea>
+
+      <form-error-label [control]="productForm.get('description')!" />
+
+      <h2 class="text-lg font-bold">Datos de venta</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div class="col-span-1">
+          <input
+            type="number"
+            placeholder="Precio"
+            class="input input-bordered w-full"
+            formControlName="price"
+            [class.border-red-500]="productForm.get('price')?.errors ?? false"
+          />
+          <form-error-label [control]="productForm.get('price')!" />
+        </div>
+
+        <div class="col-span-1">
+          <input
+            type="number"
+            placeholder="Inventario"
+            class="input input-bordered w-full"
+            formControlName="stock"
+            [class.border-red-500]="productForm.get('stock')?.errors ?? false"
+          />
+          <form-error-label [control]="productForm.get('stock')!" />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+@if (wasSaved()) {
+  <div class="alert alert-success fixed bottom-4 right-4 w-80 animate-fadeIn">
+    <span>Datos actualizados correctamente</span>
+  </div>
+}
