@@ -19,7 +19,16 @@
     <!-- Listado -->
     <product-table class="mx-8" [products]="productsResource.value()" />
   </div>
-  <button class="btn btn-primary" (click)="deleteItem()">Eliminar</button>
+  <button class="btn btn-primary" (click)="test()">Eliminar</button>
+  <button class="btn btn-secondary" (click)="showSuccess()">Snack Success</button>
+  <button class="btn btn-secondary" (click)="showError()">Snack Error</button>
+  <button class="btn btn-secondary" (click)="showWarning()">Snack Warning</button>
+  <button class="btn btn-secondary" (click)="showInfo()">Snack Info</button>
+  <button class="btn btn-warning" (click)="showAlertSuccess()">Alert Success</button>
+  <button class="btn btn-warning" (click)="showAlertError()">Alert Error</button>
+  <button class="btn btn-warning" (click)="showAlertWarning()">Alert Warning</button>
+  <button class="btn btn-warning" (click)="showAlertInfo()">Alert Info</button>
+  <button class="btn btn-warning" (click)="showAlertQuestion()">Alert Question</button>
 } @else {
   <app-loading />
 }

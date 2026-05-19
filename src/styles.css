@@ -1,4 +1,73 @@
 @import 'tailwindcss';
+
+@theme {
+  /* --animate-fadeIn: fadein 1s ease-in infinite; */
+  --animate-fadeIn: fadein 2s ease-in infinite;
+  @keyframes fadein {
+    0% {
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.2;
+    }
+    20% {
+      opacity: 0.4;
+    }
+    30% {
+      opacity: 0.6;
+    }
+    40% {
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 1;
+    }
+    60% {
+      opacity: 0.8;
+    }
+    70% {
+      opacity: 0.6;
+    }
+
+    80% {
+      opacity: 0.4;
+    }
+    90% {
+      opacity: 0.2;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  --animate-slideIn: slideIn 0.25s ease;
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --animate-zoomIn: zoomIn 0.25s ease;
+  @keyframes zoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
 @plugin "daisyui" {
   themes:
     light --default,
