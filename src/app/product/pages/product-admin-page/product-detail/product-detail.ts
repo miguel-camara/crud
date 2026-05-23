@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ProductService } from '../../../services/product.service';
 import { FormErrorLabel } from '../../../components/form-error-label/form-error-label';
 import { firstValueFrom } from 'rxjs';
+import { AlertService } from '../../../services/alert.service';
 
 @Component({
   selector: 'product-detail',
@@ -23,8 +24,9 @@ export class ProductDetail {
     name: ['', Validators.required],
     description: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(1)]],
-    stock: [0, [Validators.required, Validators.min(1)]],
   });
+
+  private alert = inject(AlertService);
 
   ngOnInit(): void {
     this.setFormValue(this.product());
@@ -32,7 +34,7 @@ export class ProductDetail {
   }
 
   setFormValue(formLike: Partial<Product>) {
-    this.productForm.reset(this.product() as any);
+    this.productForm.reset(formLike as any);
   }
 
   async onSubmit() {
@@ -46,24 +48,68 @@ export class ProductDetail {
       ...(formValue as any),
     };
 
-    this.wasSaved.set(true);
+    if (this.wasSaved()) return;
 
-    console.log(productLike);
-    console.log(this.product());
+    this.wasSaved.set(true);
 
     if (this.product().id === 'new') {
       // Crear Product
-      const product = await firstValueFrom(this.productsService.createProduct(productLike));
-      this.router.navigate(['/product', product.id as string]);
+      try {
+        const product = await firstValueFrom(this.productsService.create(productLike));
+        this.router.navigate(['/product', product.id]);
+        await this.alert.open({
+          title: 'Producto Creado',
+          message: 'Se creo el producto con Exito',
+          type: 'success',
+          showCancelButton: false,
+          showConfirmButton: false,
+          autoClose: true,
+          timer: 2000,
+        });
+      } catch (error) {
+        await this.alert.open({
+          title: 'Ocurrio un Error',
+          message: 'Error al crear el producto',
+          type: 'error',
+          autoClose: true,
+          timer: 2000,
+          confirmText: 'Aceptar',
+          showCancelButton: false,
+          showConfirmButton: true,
+        });
+      }
     } else {
       // Actualizar Product
-      await firstValueFrom(
-        this.productsService.updateProduct(this.product().id as string, productLike),
-      );
+      try {
+        const product = await firstValueFrom(
+          this.productsService.update(productLike, this.product().id!),
+        );
+
+        await this.alert.open({
+          title: 'Producto Actualizado',
+          message: 'Se actualizo el producto con Exito',
+          type: 'success',
+          showCancelButton: false,
+          showConfirmButton: false,
+          autoClose: true,
+          timer: 2000,
+        });
+      } catch (error) {
+        await this.alert.open({
+          title: 'Ocurrio un Error',
+          message: 'Error al actualizar el producto',
+          type: 'error',
+          autoClose: true,
+          timer: 2000,
+          confirmText: 'Aceptar',
+          showCancelButton: false,
+          showConfirmButton: true,
+        });
+      }
     }
 
     setTimeout(() => {
       this.wasSaved.set(false);
-    }, 3000);
+    }, 1000);
   }
 }

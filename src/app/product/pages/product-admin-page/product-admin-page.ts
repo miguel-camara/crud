@@ -24,7 +24,7 @@ export class ProductAdminPage {
       id: this.productId(),
     }),
     stream: ({ params }) => {
-      return this.productService.getProductById(params.id);
+      return this.productService.findById(params.id);
     },
   });
 }

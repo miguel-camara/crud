@@ -2,106 +2,92 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, Observable, of, tap, throwError } from 'rxjs';
 
-const baseUrl: string = '';
+const baseUrl: string = 'http://localhost:8080';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private http = inject(HttpClient);
-  private listProducts = signal<Product[]>([
-    {
-      id: 'asd',
-      description: 'Descripcion 1',
-      name: 'Nombre 1',
-      price: 123,
-      stock: 400,
-    },
-    {
-      id: 'ewq',
-      description: 'Descripcion 2',
-      name: 'Nombre 2',
-      price: 1213,
-      stock: 340,
-    },
-    {
-      id: 'dsadad',
-      description: 'Descripcion 3',
-      name: 'Nombre 3',
-      price: 4433,
-      stock: 600,
-    },
-    {
-      id: 'yjytd',
-      description: 'Descripcion 4',
-      name: 'Nombre 4',
-      price: 765,
-      stock: 470,
-    },
-  ]);
 
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${baseUrl}/products`).pipe(
-      // tap(res => this.productsCache.set(key, res)),
+  private productsCache = new Map<string, Product[]>();
+
+  findAll(): Observable<Product[]> {
+    if (this.productsCache.has('products')) return of(this.productsCache.get('products')!);
+
+    return this.http.get<Product[]>(baseUrl).pipe(
+      tap((res) => this.productsCache.set('products', res)),
       catchError((err) => {
         return throwError(() => new Error(err));
       }),
     );
   }
 
-  getListProducts(): Observable<Product[]> {
-    return of(this.listProducts());
-  }
-
-  getProductById(id: string): Observable<Product> {
-    // return this.http.get<Product>("");
-    // return this.http.get<Product>("");
-
+  findById(id: string): Observable<Product> {
     if (id === 'new') {
       return of({
         id: 'new',
         description: '',
         name: '',
         price: 0,
-        stock: 0,
       });
     }
-    const product: Product = this.listProducts().find((p) => p.id === id) ?? {
-      description: '',
-      name: '',
-      price: 0,
-      stock: 0,
-    };
-    return of(product);
+
+    return this.http.get<Product>(`${baseUrl}/${id}`).pipe(
+      catchError((err) => {
+        return throwError(() => new Error(err));
+      }),
+    );
   }
 
-  createProduct(productLike: Partial<Product>): Observable<Product> {
-    // return this.http.post<Product>(`${baseUrl}/products`, productLike);
+  create(product: Partial<Product>): Observable<Product> {
+    return this.http.post<Product>(`${baseUrl}`, product).pipe(
+      tap((res) => {
+        const ps = this.productsCache.get('products')!;
+        ps.push({
+          ...res,
+        });
 
-    const id: number = Math.floor(Math.random() * 10000);
-    const product: Product = {
-      ...(productLike as Product),
-      id: '' + id,
-    };
-
-    this.listProducts.update((products) => [...products, product]);
-
-    return of(product);
+        this.productsCache.set('products', ps);
+      }),
+      catchError((err) => {
+        return throwError(() => new Error(err));
+      }),
+    );
   }
 
-  updateProduct(id: string, productLike: Partial<Product>): Observable<Product> {
-    // return this.http.patch<Product>(`${baseUrl}/products/${id}`, productLike);
+  update(product: Partial<Product>, id: string): Observable<Product> {
+    return this.http.put<Product>(`${baseUrl}/${id}`, product).pipe(
+      tap((res) => this.updateCache(res, true)),
+      catchError((err) => {
+        return throwError(() => new Error(err));
+      }),
+    );
+  }
 
-    let product: Product;
+  deleteById(id: string): Observable<Product> {
+    return this.http.delete<Product>(`${baseUrl}/${id}`).pipe(
+      tap((res) => this.updateCache(res, false)),
+      catchError((err) => {
+        return throwError(() => new Error(err));
+      }),
+    );
+  }
 
-    const list: Product[] = this.listProducts().map((p) => {
-      if (p.id === id) {
-        product = { ...(productLike as Product), id: id };
-        return product;
+  updateCache(product: Product, isUpdate: boolean): void {
+    if (!isUpdate) {
+      const listProducts = this.productsCache
+        .get('products')!
+        .filter((res) => res.id !== product.id);
+      this.productsCache.set('products', listProducts);
+
+      return;
+    }
+
+    const listProducts = this.productsCache.get('products')!.map((res) => {
+      if (res.id === product.id) {
+        res = product;
       }
-      return p;
+      return res;
     });
-
-    this.listProducts.set(list);
-
-    return of(product!);
+    this.productsCache.set('products', listProducts);
   }
 }

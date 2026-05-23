@@ -4,9 +4,8 @@ import { ProductService } from '../../services/product.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Loading } from '../../components/loading/loading';
-import { DialogService } from '../../services/dialog.service';
-import { SnackbarService } from '../../services/snackbar.service';
 import { AlertService } from '../../services/alert.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'product-page',
@@ -16,116 +15,55 @@ import { AlertService } from '../../services/alert.service';
 export class ProductPage {
   productService = inject(ProductService);
 
+  dialogService = inject(AlertService);
+
   productsResource = rxResource({
-    params: () => ({}),
     stream: () => {
-      return this.productService.getListProducts();
+      return this.productService.findAll();
     },
   });
-  private dialog = inject(DialogService);
-  private snack = inject(SnackbarService);
-  private alert = inject(AlertService);
 
-  showSuccess() {
-    this.snack.open('Usuario guardado correctamente', 'success');
-  }
-  showInfo() {
-    this.snack.open('Informacion de usuario', 'info');
-  }
-  showError() {
-    this.snack.open('Ocurrio un error', 'error');
-  }
-  showWarning() {
-    this.snack.open('Advertencia en el componente', 'warning');
-  }
-  async showAlertError() {
-    await this.alert.open({
-      title: 'Eliminar usuario',
-      message: 'Esta acción no se puede deshacer',
+  async delete(id: string) {
+    const res: boolean = await this.dialogService.open({
+      confirmText: 'Eliminar',
+      cancelText: 'Cancelar',
       type: 'error',
-      confirmText: 'Sí, eliminar',
-      cancelText: 'Cancelar',
+      // closeOnBackdrop: false,
       position: 'row',
-      showCancelButton: true,
-    });
-  }
-
-  showAlertSuccess() {
-    this.alert.open({
-      title: 'Guardado',
-      message: 'El usuario fue agregado correctamente',
-      type: 'success',
-      autoClose: true,
-      timer: 2000,
       showConfirmButton: true,
-    });
-  }
-  async showAlertInfo() {
-    await this.alert.open({
-      title: 'Eliminar usuario',
-
-      message: 'Esta acción no se puede deshacer',
-
-      type: 'info',
-
-      confirmText: 'Sí, eliminar',
-
-      cancelText: 'Cancelar',
-
       showCancelButton: true,
+      title: 'Eliminar Producto',
+      message: 'Esta accion no se podra desahacer',
     });
-  }
-  async showAlertQuestion() {
-    await this.alert.open({
-      title: 'Eliminar usuario',
 
-      message: 'Esta acción no se puede deshacer',
+    if (!res) return;
 
-      type: 'question',
+    try {
+      await firstValueFrom(this.productService.deleteById(id));
+      this.dialogService.open({
+        type: 'success',
+        // closeOnBackdrop: false,
+        showConfirmButton: false,
+        showCancelButton: false,
+        title: 'Elimindo',
+        message: 'Eliminado con exito',
+        autoClose: true,
+        timer: 2000,
+      });
 
-      confirmText: 'Sí, eliminar',
-
-      cancelText: 'Cancelar',
-
-      showCancelButton: true,
-    });
-  }
-
-  async showAlertWarning() {
-    await this.alert.open({
-      title: 'Eliminar usuario',
-
-      message: 'Esta acción no se puede deshacer',
-
-      type: 'warning',
-
-      confirmText: 'Sí, eliminar',
-
-      cancelText: 'Cancelar',
-
-      showCancelButton: true,
-    });
-  }
-
-  test() {
-    console.log('Metodo de prueba');
-    setTimeout(() => {
-      console.log('Funciono?');
-      this.deleteItem();
-    }, 500);
-  }
-
-  async deleteItem() {
-    const confirmed = await this.dialog.confirm(
-      'Eliminar elemento!!!',
-      'Esta acción no se puede deshacer!!!',
-    );
-
-    if (confirmed) {
-      console.log('Eliminar');
-      return;
+      const products = await firstValueFrom(this.productService.findAll());
+      this.productsResource.set(products);
+    } catch (err) {
+      await this.dialogService.open({
+        type: 'error',
+        // closeOnBackdrop: false,
+        showConfirmButton: true,
+        confirmText: 'Aceptar',
+        title: 'Ocurrio un error',
+        message: 'Error al eliminar el producto',
+        autoClose: true,
+        timer: 2000,
+      });
     }
-
-    console.log('Cancelado');
   }
 }

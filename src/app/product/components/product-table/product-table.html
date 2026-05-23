@@ -6,7 +6,6 @@
         <th>Nombre</th>
         <th>Descripcion</th>
         <th>Precio</th>
-        <th>Inventario</th>
         <th></th>
       </tr>
     </thead>
@@ -23,22 +22,29 @@
           <td>
             {{ product.price | currency }}
           </td>
-          <td>
-            @if (product.stock <= 10) {
-              <span class="badge badge-error">{{ product.stock }}</span>
-            }
-            <!--  -->
-            @else if (product.stock <= 20) {
-              <span class="badge badge-warning">{{ product.stock }}</span>
-            }
-            <!--  -->
-            @else {
-              <span class="badge badge-success">{{ product.stock }}</span>
-            }
-          </td>
-          <th>
-            <a [routerLink]="['/product', product.id]" class="btn btn-ghost text-accent btn-xs">
-              Detalles
+          <th class="flex gap-3">
+            <a [routerLink]="['/product', product.id]" class="btn btn-ghost text-primary btn-xs">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path
+                  fill="currentColor"
+                  d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-1 2q-.425 0-.712-.288T3 20v-2.425q0-.4.15-.763t.425-.637L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.437.65T21 6.4q0 .4-.138.763t-.437.662l-12.6 12.6q-.275.275-.638.425t-.762.15zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"
+                />
+              </svg>
+              Editar
+            </a>
+            <a
+              class="btn btn-ghost text-secondary btn-xs"
+              (click)="deleteProduct.emit(product.id!)"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path
+                  fill="currentColor"
+                  d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zm5-7.1l1.9 1.9q.275.275.7.275t.7-.275t.275-.7t-.275-.7l-1.9-1.9l1.9-1.9q.275-.275.275-.7t-.275-.7t-.7-.275t-.7.275L12 11.1l-1.9-1.9q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l1.9 1.9l-1.9 1.9q-.275.275-.275.7t.275.7t.7.275t.7-.275z"
+                />
+              </svg>
+              Eliminar
             </a>
           </th>
         </tr>
